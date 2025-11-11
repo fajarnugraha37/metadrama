@@ -5,9 +5,12 @@
     "source.organizeImports": "never"
   },
   "eslint.workingDirectories": [
-    "./"
+    "./src",
+    "./tests",
+    "./examples"
   ],
   "files.exclude": {
-    "dist": true
+    "dist": false,
+    "node_modules": true
   }
 }

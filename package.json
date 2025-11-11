@@ -29,7 +29,7 @@
     "dev": "bun run src/cli/index.ts playground --watch",
     "build": "bun run src/cli/index.ts build",
     "check": "bun run src/cli/index.ts check",
-    "test": "vitest run --runInBand && tsd",
+    "test": "vitest run && tsd",
     "lint": "eslint . --ext .ts,.tsx --max-warnings=0",
     "playground": "bun run src/cli/index.ts playground"
   },
