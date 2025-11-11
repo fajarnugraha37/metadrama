@@ -1,0 +1,1 @@
+explain in details, comprehensice, step by step and make sense regarding Architecture of the librar, how it works, its components, their interactions and the code flow. Use the information from the other files to inform your explanation.
