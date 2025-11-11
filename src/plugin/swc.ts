@@ -38,65 +38,80 @@ export const transformWithSwc = async (
 
     // Find methods in this class
     const classStartIndex = classMatches.index;
-    const classEndPattern = new RegExp(`class\\s+${className}[^}]*}`, "s");
-    const classMatch = source.slice(classStartIndex).match(classEndPattern);
 
-    if (classMatch) {
-      const classBody = classMatch[0];
-      const methodPattern = /(async\s+)?(\w+)\s*\([^)]*\)\s*{/g;
-      let methodMatches: RegExpExecArray | null;
+    // Find the start of the class body (opening brace)
+    const classBodyStart = source.indexOf("{", classStartIndex);
+    if (classBodyStart === -1) continue;
 
-      while ((methodMatches = methodPattern.exec(classBody)) !== null) {
-        const methodName = methodMatches[2]!;
-        const isAsync = !!methodMatches[1];
+    // Find the matching closing brace by counting braces
+    let braceCount = 1;
+    let i = classBodyStart + 1;
+    while (i < source.length && braceCount > 0) {
+      if (source[i] === "{") {
+        braceCount++;
+      } else if (source[i] === "}") {
+        braceCount--;
+      }
+      i++;
+    }
 
-        // Skip constructor and common non-method patterns
-        if (methodName === "constructor" || methodName === "class") continue;
+    if (braceCount > 0) continue; // Unmatched braces
 
+    const classBody = source.slice(classBodyStart, i);
+
+    const methodPattern = /(async\s+)?(\w+)\s*\([^)]*\)\s*{/g;
+    let methodMatches: RegExpExecArray | null;
+
+    while ((methodMatches = methodPattern.exec(classBody)) !== null) {
+      const methodName = methodMatches[2]!;
+      const isAsync = !!methodMatches[1];
+
+      // Skip constructor and common non-method patterns
+      if (methodName === "constructor" || methodName === "class") continue;
+
+      console.debug(
+        `Found method: ${className}#${methodName} (async: ${isAsync})`
+      );
+
+      const signature = createSignature(
+        "method",
+        methodName, // Use just the method name, not the qualified name
+        file,
+        [], // method decorators - could be enhanced
+        {
+          async: isAsync,
+          parameters: [],
+          owner: {
+            name: className,
+            decorators: [decoratorName],
+          },
+        }
+      );
+
+      // Find matching advice
+      const matchingAdvice = registry.findAdvice(signature);
+      if (matchingAdvice.length > 0) {
         console.debug(
-          `Found method: ${className}#${methodName} (async: ${isAsync})`
+          `Found matching advice for ${signature.name}:`,
+          matchingAdvice.map((a) => a.id)
         );
+        advicePlans.push({
+          signature,
+          adviceIds: matchingAdvice.map((a) => a.id),
+        });
+      }
 
-        const signature = createSignature(
-          "method",
-          methodName, // Use just the method name, not the qualified name
-          file,
-          [], // method decorators - could be enhanced
-          {
-            async: isAsync,
-            parameters: [],
-            owner: {
-              name: className,
-              decorators: [decoratorName],
-            },
-          }
+      // Find matching macros
+      const matchingMacros = registry.findMacros(signature);
+      if (matchingMacros.length > 0) {
+        console.debug(
+          `Found matching macros for ${signature.name}:`,
+          matchingMacros.map((m) => m.name)
         );
-
-        // Find matching advice
-        const matchingAdvice = registry.findAdvice(signature);
-        if (matchingAdvice.length > 0) {
-          console.debug(
-            `Found matching advice for ${signature.name}:`,
-            matchingAdvice.map((a) => a.id)
-          );
-          advicePlans.push({
-            signature,
-            adviceIds: matchingAdvice.map((a) => a.id),
-          });
-        }
-
-        // Find matching macros
-        const matchingMacros = registry.findMacros(signature);
-        if (matchingMacros.length > 0) {
-          console.debug(
-            `Found matching macros for ${signature.name}:`,
-            matchingMacros.map((m) => m.name)
-          );
-          macroPlans.push({
-            signature,
-            macroNames: matchingMacros.map((m) => m.name),
-          });
-        }
+        macroPlans.push({
+          signature,
+          macroNames: matchingMacros.map((m) => m.name),
+        });
       }
     }
   }
