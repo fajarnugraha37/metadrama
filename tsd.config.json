@@ -1,0 +1,6 @@
+{
+  "testFiles": ["tests/types.tsd.ts"],
+  "compilerOptions": {
+    "types": ["bun-types"]
+  }
+}
