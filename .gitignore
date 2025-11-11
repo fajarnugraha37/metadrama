@@ -35,6 +35,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .DS_Store
 
 # markdown notes
-AGENT.md
+AGENT*.md
 PROGRESS.md
 ROADMAP.md
