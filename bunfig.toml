@@ -1,0 +1,7 @@
+[default]
+entrypoint = "src/index.ts"
+
+[scripts]
+build = "bun run src/cli/index.ts build"
+check = "bun run src/cli/index.ts check"
+playground = "bun run src/cli/index.ts playground"
