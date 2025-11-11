@@ -6,10 +6,12 @@ import { transformFile } from "../plugin/swc";
 import { analyzeProjectImports } from "../transform/arch-analyzer";
 import { changeExtension, writeFile } from "../transform/utils";
 import { resolveOutDir, resolveRoots } from "./targets";
+import { loadConfig } from "../core/config";
 
 interface BuildFlags {
   watch?: boolean | string;
   outDir?: string | boolean;
+  config?: string;
 }
 
 const collectFiles = async (roots: string[]) => {
@@ -25,6 +27,10 @@ export const runBuild = async (
   targets: string[] = []
 ): Promise<void> => {
   const cwd = process.cwd();
+
+  // Load aspect configuration first
+  await loadConfig({ configPath: flags.config });
+
   const roots = resolveRoots(targets, cwd);
   const outDir = resolveOutDir(flags.outDir, cwd);
   const files = await collectFiles(roots);
@@ -36,7 +42,10 @@ export const runBuild = async (
     const rootLabel =
       path.relative(cwd, owningRoot) || path.basename(owningRoot);
     const relative = path.relative(owningRoot, file);
-    const outFile = changeExtension(path.join(outDir, rootLabel, relative), "js");
+    const outFile = changeExtension(
+      path.join(outDir, rootLabel, relative),
+      "js"
+    );
     await writeFile(outFile, result.code);
     sources.push({ file, source: result.source });
   }
@@ -50,7 +59,9 @@ export const runBuild = async (
     process.exitCode = 1;
   } else {
     console.log(
-      `metadrama build ✔️ -> ${path.relative(cwd, outDir) || outDir} (${files.length} files from ${roots
+      `metadrama build ✔️ -> ${path.relative(cwd, outDir) || outDir} (${
+        files.length
+      } files from ${roots
         .map((root) => path.relative(cwd, root) || path.basename(root))
         .join(", ")})`
     );

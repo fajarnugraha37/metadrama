@@ -48,16 +48,15 @@ class InventoryService {
   }
 }
 
-const weaveMethod = <
-  T extends { prototype: Record<string, (...args: any[]) => any> }
->(
+const weaveMethod = <T extends new (...args: any[]) => any>(
   ctor: T,
-  method: keyof T["prototype"],
+  method: string,
   signature: Signature
 ) => {
-  const original = ctor.prototype[method];
+  const proto = ctor.prototype as any;
+  const original = proto[method];
   if (typeof original !== "function") return;
-  ctor.prototype[method] = weaveFunction(original, signature) as T["prototype"][typeof method];
+  proto[method] = weaveFunction(original, signature);
 };
 
 weaveMethod(InventoryService, "getStock", {

@@ -1,11 +1,14 @@
 {
   "compilerOptions": {
-    "lib": ["ES2022"],
+    "lib": [
+      "ES2022"
+    ],
     "target": "ES2022",
     "module": "ESNext",
     "moduleDetection": "force",
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
+    "noEmit": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": false,
     "verbatimModuleSyntax": true,
@@ -17,11 +20,25 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
-    "types": ["bun-types", "vitest/globals"],
+    "types": [
+      "bun-types",
+      "vitest/globals"
+    ],
     "paths": {
-      "@metadrama/*": ["./src/*"]
+      "@metadrama/*": [
+        "./src/*"
+      ]
     }
   },
-  "include": ["src", "tests", "examples", "aspect.config.ts", "bunfig.toml"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src",
+    "tests",
+    "examples",
+    "aspect.config.ts",
+    "bunfig.toml"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
