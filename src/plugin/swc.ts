@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import { transform } from "@swc/core";
 
 import { registry } from "../core/registry";
+import { timer } from "../core/diagnostics";
 import type { TransformArtifact, AdvicePlan, MacroPlan } from "../transform/ir";
 import { createSignature } from "../transform/selectors";
 import { expandMacros } from "../transform/expand-macro";

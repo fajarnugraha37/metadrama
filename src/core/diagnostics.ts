@@ -7,6 +7,21 @@ const explanations: Record<string, string> = {
     "Advice registration failed because the provided pointcut produced no targets.",
   MD1002:
     "Macro expansion failed. Ensure the macro receives a supported AST node.",
+  MD1003:
+    "Transform failed: Unable to parse decorated class. Check decorator syntax and class structure.",
+  MD1004:
+    "Transform failed: Method boundary detection failed. Method might have complex nested braces.",
+  MD1005:
+    "Config loading failed: aspect.config.ts could not be imported. Check file syntax and dependencies.",
+  MD1006: "SWC transformation failed: Invalid TypeScript syntax detected.",
+  MD1007:
+    "Weaving failed: Cannot inject advice into method. Check method signature and async/sync compatibility.",
+  MD1008:
+    "Pointcut matching failed: No methods found matching the specified decorator pattern.",
+  MD1009:
+    "Registry error: Duplicate advice registration for the same pointcut.",
+  MD1010:
+    "Performance warning: Transform time exceeded budget. Consider optimizing pointcut patterns.",
 };
 
 export function formatDiagnostic(entry: DiagnosticEntry): string {
