@@ -180,3 +180,5 @@ export const eslintPlugin = {
     "no-banned-imports": noBannedImports,
   },
 };
+
+export { createGraph } from "./imports-graph";
