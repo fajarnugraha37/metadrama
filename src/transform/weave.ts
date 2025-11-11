@@ -25,9 +25,14 @@ export const weave = (artifact: TransformArtifact): WeaveResult => {
 
       for (const advice of adviceRecords) {
         try {
+          // Reconstruct qualified name for weaving
+          const qualifiedName = signature.owner
+            ? `${signature.owner.name}#${signature.name}`
+            : signature.name;
+
           transformedCode = weaveAdvice(
             transformedCode,
-            signature.name,
+            qualifiedName,
             advice.kind,
             advice.id
           );

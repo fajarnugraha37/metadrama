@@ -59,7 +59,7 @@ export const transformWithSwc = async (
 
         const signature = createSignature(
           "method",
-          `${className}#${methodName}`,
+          methodName, // Use just the method name, not the qualified name
           file,
           [], // method decorators - could be enhanced
           {
