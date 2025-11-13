@@ -1,6 +1,30 @@
 # Before & After: Code Transformation Examples
 
+> ⚠️ **IMPORTANT**: The current MetaDrama implementation still has runtime overhead and reflection. This document shows both the **current output** and the **target zero-runtime-overhead output** that we're working towards.
+
 This document shows how MetaDrama transforms your TypeScript code by weaving aspects and expanding macros at compile time.
+
+## 🚨 Current State vs. Zero Runtime Overhead Goal
+
+### ❌ **Current Output (Has Runtime Overhead)**
+
+The current MetaDrama implementation still includes:
+
+- TypeScript decorator helpers (`_ts_decorate`, `Reflect.decorate`)
+- Runtime imports (`import { weaveFunction } from "metadrama"`)
+- Runtime method weaving (`weaveMethod(...)`)
+- Runtime pointcut evaluation
+
+### ✅ **Target Output (True Zero Runtime Overhead)**
+
+The goal is to eliminate ALL runtime overhead by:
+
+- Removing all MetaDrama imports
+- Removing all decorator helpers and reflection
+- Inlining all aspect code directly into methods
+- Compile-time pointcut resolution only
+
+---
 
 ## 🎭 Basic Advice Transformation
 
@@ -41,10 +65,10 @@ around(serviceMethods)((ctx) => {
 });
 ```
 
-### After: Generated JavaScript
+### After: Current Output (❌ Still Has Runtime Overhead)
 
 ```javascript
-// Generated TypeScript decorator helper (standard)
+// ❌ TypeScript decorator helper with reflection
 function _ts_decorate(decorators, target, key, desc) {
   var c = arguments.length,
     r =
@@ -120,8 +144,67 @@ export class UserService {
   }
 }
 
-// Apply decorators using standard TypeScript mechanism
+// ❌ Runtime decorator application
 UserService = _ts_decorate([Service()], UserService);
+
+// ❌ Runtime method weaving (not shown in this example but present in actual output)
+// weaveMethod(UserService, "getUser", { /* signature metadata */ });
+```
+
+### After: Target Output (✅ True Zero Runtime Overhead)
+
+```javascript
+// ✅ NO imports, NO decorators, NO reflection, NO runtime overhead
+// Pure JavaScript with aspects compiled directly into methods
+
+export class UserService {
+  constructor(db) {
+    this.db = db;
+  }
+
+  async getUser(id) {
+    // ✅ Aspect logic compiled directly into method - zero runtime cost
+    const start = performance.now();
+    console.log(`🚀 Starting getUser`, [id]);
+
+    try {
+      // Original method logic inlined
+      const result = await this.db.findById(id);
+
+      // Advice logic inlined
+      const duration = performance.now() - start;
+      console.log(`✅ getUser completed in ${duration.toFixed(2)}ms`);
+
+      return result;
+    } catch (error) {
+      const duration = performance.now() - start;
+      console.log(`❌ getUser failed in ${duration.toFixed(2)}ms`);
+      throw error;
+    }
+  }
+
+  async updateUser(id, data) {
+    // ✅ Same pattern - all aspect logic compiled away
+    const start = performance.now();
+    console.log(`🚀 Starting updateUser`, [id, data]);
+
+    try {
+      const user = await this.db.update(id, data);
+
+      const duration = performance.now() - start;
+      console.log(`✅ updateUser completed in ${duration.toFixed(2)}ms`);
+
+      return user;
+    } catch (error) {
+      const duration = performance.now() - start;
+      console.log(`❌ updateUser failed in ${duration.toFixed(2)}ms`);
+      throw error;
+    }
+  }
+}
+
+// ✅ NO decorator application - completely eliminated
+// ✅ NO runtime weaving - everything is compile-time
 ```
 
 ## ⚡ Memoize Macro Expansion
@@ -841,4 +924,34 @@ Generated helpers are modular and tree-shakeable, ensuring only used functionali
 
 ---
 
-_This is the magic of MetaDrama: your expressive, aspect-oriented source code becomes optimized, performant JavaScript without any runtime cost!_ 🎭✨
+## 🎯 **Current vs. Target: Runtime Overhead Analysis**
+
+### ❌ **Current MetaDrama Implementation Issues**
+
+| Issue                   | Current Behavior                              | Runtime Cost            |
+| ----------------------- | --------------------------------------------- | ----------------------- |
+| **Decorator Helpers**   | `_ts_decorate` with `Reflect.decorate`        | ✅ Reflection calls     |
+| **Runtime Imports**     | `import { weaveFunction } from "metadrama"`   | ✅ Bundle size increase |
+| **Method Weaving**      | `weaveMethod()` calls at runtime              | ✅ Startup overhead     |
+| **Pointcut Evaluation** | `pointcut.classes.withDecorator()` at runtime | ✅ Runtime parsing      |
+
+### ✅ **Target Zero Runtime Overhead Goals**
+
+| Goal                       | Target Behavior                      | Benefit              |
+| -------------------------- | ------------------------------------ | -------------------- |
+| **Pure Compilation**       | All aspects compiled to vanilla JS   | Zero reflection      |
+| **No Runtime Imports**     | All MetaDrama imports eliminated     | Smaller bundles      |
+| **Inline Everything**      | Methods contain fully expanded logic | Zero startup cost    |
+| **Compile-time Pointcuts** | Pointcut matching at build time only | Zero runtime parsing |
+
+### 🚧 **What Needs to Be Fixed**
+
+1. **Eliminate TypeScript Decorators**: Replace `@Service()` with compile-time markers
+2. **Pure Code Generation**: Generate methods with inlined aspect logic
+3. **Remove Runtime Dependencies**: Eliminate all MetaDrama imports from output
+4. **Compile-time Pointcut Resolution**: Move all matching to build phase
+
+---
+
+**Current State**: MetaDrama is "compile-time enhanced" but still has runtime overhead  
+**Target State**: True zero-runtime-overhead aspect-oriented programming �✨
