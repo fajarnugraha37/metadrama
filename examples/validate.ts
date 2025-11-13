@@ -13,9 +13,9 @@ const processPayment = validateRuntime(
 const run = () => {
   console.log("ok", processPayment("42", 99));
   try {
-    // @ts-expect-error invalid data for demo
     processPayment("42", "oops" as never);
   } catch (error) {
+    // @ts-expect-error invalid data for demo
     console.error("[validate-example] rejected", error.message);
   }
 };
