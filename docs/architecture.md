@@ -4,7 +4,23 @@ This document provides a comprehensive overview of MetaDrama's architecture, exp
 
 ## Overview
 
-MetaDrama is a compile-time aspect-oriented programming (AOP) framework that transforms TypeScript code during build time, injecting cross-cutting concerns directly into the generated JavaScript. The framework operates on a multi-phase transformation pipeline that detects decorators, matches pointcuts, and weaves advice into methods.
+MetaDrama is a compile-time aspect-oriented programming (AOP) framework that transforms TypeScript code during build time, injecting cross-cutting concerns directly into the generated JavaScript.
+
+### 🚧 **Architecture Evolution: Zero Runtime Overhead**
+
+**Current Architecture (v0.1.x)**: "Compile-time enhanced runtime weaving"
+
+- Uses TypeScript decorators (`@Service()`)
+- Generates runtime imports (`import { weaveFunction }`)
+- Includes reflection helpers (`Reflect.decorate`)
+
+**Target Architecture (v0.2.x)**: "True zero runtime overhead"
+
+- Uses compile-time markers (`/** @metadrama:class Service */`)
+- Generates zero runtime imports
+- Pure inline code generation
+
+The framework operates on a multi-phase transformation pipeline that detects aspects, matches pointcuts, and weaves advice into methods.
 
 ## Core Components
 
@@ -22,11 +38,40 @@ The transformation pipeline is the heart of MetaDrama, responsible for convertin
 
 #### Flow:
 
+**Current Flow (v0.1.x - Has Runtime Overhead):**
+
 ```
 Source Code → AST Analysis → Decorator Detection → Pointcut Matching → Advice Injection → Code Generation
+                                     ↓
+                              Runtime Imports + Reflection Helpers
 ```
 
-### 2. Core Framework (`src/core/`)
+**Target Flow (v0.2.x - Zero Runtime Overhead):**
+
+```
+Source Code → Marker Parsing → Compile-time Pointcut Resolution → Pure Code Generation
+                                            ↓
+                                  Fully Inlined JavaScript (No Imports)
+```
+
+### 2. Zero Runtime Transformation Pipeline (v0.2.x Target)
+
+#### New Architecture Components:
+
+- **`marker-parser.ts`**: Parses `/** @metadrama */` comments instead of decorators
+- **`code-generator.ts`**: Pure code generation with inlined aspect logic
+- **`pointcut-resolver.ts`**: Compile-time pointcut matching (no runtime evaluation)
+- **`inline-expander.ts`**: Macro expansion directly into method bodies
+
+#### Zero Runtime Benefits:
+
+| Aspect           | Current (v0.1.x)    | Target (v0.2.x) | Improvement     |
+| ---------------- | ------------------- | --------------- | --------------- |
+| **Bundle Size**  | +17KB runtime       | +0KB            | -100% overhead  |
+| **Startup Time** | +5-10ms/method      | +0ms            | -100% overhead  |
+| **Performance**  | 95% of hand-written | 100% equivalent | +5% improvement |
+
+### 3. Core Framework (`src/core/`)
 
 The core framework provides the foundational APIs and runtime for aspect registration and management.
 

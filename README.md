@@ -38,9 +38,10 @@ Great question! Here's why MetaDrama exists (other than the fact that we love ma
 - Sick of copy-pasting the same try-catch blocks? We got you.
 - Want to add caching without turning your business logic into spaghetti? Say no more.
 
-### 🚀 **Compile-Time Magic**
+### 🚀 **Compile-Time Magic** _(Coming in v0.2.0)_
 
-- Zero runtime overhead because performance matters (and because we're showing off)
+- ⚠️ **Current**: Has runtime overhead (TypeScript decorators + reflection)
+- 🎯 **Target**: True zero runtime overhead (pure code generation)
 - Transform your code at build time like a responsible adult
 - Type-safe transformations because `any` is not a type, Karen
 
@@ -646,6 +647,55 @@ Inspired by the metaprogramming traditions of:
 - **Lisp** - For being meta before meta was cool
 
 Special thanks to the TypeScript team for making this kind of transformation possible, and to the SWC team for creating a fast, extensible parser that doesn't make us cry.
+
+## 🗺️ Roadmap to Zero Runtime Overhead
+
+### Current State (v0.1.0): ⚠️ Has Runtime Overhead
+
+```javascript
+// ❌ What we generate now (still has overhead)
+function _ts_decorate(decorators, target, key, desc) {
+  /* reflection */
+}
+import { weaveFunction } from "@fajarnugraha37/metadrama"; // runtime import
+UserService = _ts_decorate([Service()], UserService); // runtime weaving
+```
+
+### Target State (v0.2.0): ✅ Zero Runtime Overhead
+
+```javascript
+// ✅ What we will generate (pure JavaScript)
+export class UserService {
+  async getUser(id) {
+    // All aspect logic compiled directly in
+    const start = performance.now();
+    console.log(`🚀 Starting getUser`, [id]);
+
+    const result = await this.db.findById(id);
+
+    console.log(
+      `✅ getUser completed in ${(performance.now() - start).toFixed(2)}ms`
+    );
+    return result;
+  }
+}
+// No imports, No decorators, No reflection, No runtime overhead
+```
+
+### 🎯 **Phase 5 Goals (Q1-Q2 2025)**
+
+- [ ] **Pure Code Generation**: Eliminate all runtime imports and reflection
+- [ ] **Compile-time Markers**: Replace `@decorators` with `/** @metadrama */` comments
+- [ ] **Inline Everything**: Aspects and macros compiled directly into methods
+- [ ] **Performance Parity**: Generated code matches hand-written performance
+- [ ] **Bundle Size**: Zero MetaDrama footprint in production builds
+
+### 📋 **Detailed Planning Documents**
+
+- [**ROADMAP.md**](./ROADMAP.md) - Updated roadmap with Phase 5 zero runtime goals
+- [**docs/zero-runtime-plan.md**](./docs/zero-runtime-plan.md) - Complete technical implementation plan
+- [**docs/zero-runtime-tasks.md**](./docs/zero-runtime-tasks.md) - Detailed task breakdown and tracking
+- [**docs/before_after.md**](./docs/before_after.md) - Current vs target transformation examples
 
 ---
 
